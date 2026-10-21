@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Your result · Daily Python{% endblock %}
+{% block content %}
+<section class="result-card">
+  {% if correct %}
+    <div class="result-icon result-correct" aria-hidden="true">✓</div>
+    <p class="eyebrow">NICE WORK · {{ today.strftime("%B %d").replace(" 0", " ") }}</p>
+    <h1>You got it!</h1>
+    <p class="result-lead">The correct answer is <strong>{{ challenge.answer_text }}</strong>.</p>
+  {% else %}
+    <div class="result-icon result-incorrect" aria-hidden="true">↗</div>
+    <p class="eyebrow">A CHANCE TO LEARN · {{ today.strftime("%B %d").replace(" 0", " ") }}</p>
+    <h1>Not quite—and that’s okay.</h1>
+    <p class="result-lead">You chose <strong>{{ selected_answer }}</strong>. The correct answer is <strong>{{ challenge.answer_text }}</strong>.</p>
+  {% endif %}
+
+  {% if points_earned > 0 %}
+    <div class="xp-badge" role="status">+{{ points_earned }} XP</div>
+  {% elif correct %}
+    <div class="xp-badge xp-review" role="status">Review complete — you already earned XP for this one.</div>
+  {% endif %}
+
+  <div class="explanation">
+    <span class="explanation-label">WHY?</span>
+    <p>{{ challenge.explanation }}</p>
+  </div>
+  <div class="result-actions">
+    {% if practice %}
+      <a class="button button-primary" href="{{ url_for('practice_question', difficulty=difficulty) }}">Next problem <span aria-hidden="true">→</span></a>
+      <a class="text-link" href="{{ url_for('practice') }}">Back to practice</a>
+    {% else %}
+      <a class="button button-primary" href="{{ url_for('practice') }}">Practice more <span aria-hidden="true">→</span></a>
+      <a class="text-link" href="{{ url_for('home') }}">Back to today’s challenge</a>
+    {% endif %}
+    <a class="text-link" href="{{ url_for('leaderboard') }}">See the leaderboard</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Sign up · Daily Python{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-intro">
+    <p class="eyebrow">START YOUR STREAK</p>
+    <h1>Learn a little.<br><span>Every single day.</span></h1>
+    <p>Create an account, invite your friends, and make Python practice a daily ritual.</p>
+  </div>
+  <form class="auth-card" method="post">
+    <h2>Create your account</h2>
+    <p class="form-subtitle">It only takes a moment to get started.</p>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" required autofocus>
+    <span class="field-hint">3–20 letters, numbers, or underscores</span>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <span class="field-hint">At least 8 characters</span>
+    <label for="confirm_password">Confirm password</label>
+    <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+    <button class="button button-primary full-width" type="submit">Create account <span aria-hidden="true">→</span></button>
+    <p class="form-foot">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  </form>
+</section>
+{% endblock %}

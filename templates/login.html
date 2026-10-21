@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Log in · Daily Python{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-intro">
+    <p class="eyebrow">GOOD TO SEE YOU</p>
+    <h1>Pick up where<br><span>you left off.</span></h1>
+    <p>Your streak and challenge history are waiting.</p>
+  </div>
+  <form class="auth-card" method="post">
+    <h2>Log in</h2>
+    <p class="form-subtitle">Welcome back to your daily practice.</p>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="username">Username</label>
+    <input id="username" name="username" type="text" autocomplete="username" maxlength="20" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="button button-primary full-width" type="submit">Log in <span aria-hidden="true">→</span></button>
+    <p class="form-foot">New to the challenge? <a href="{{ url_for('signup') }}">Create an account</a></p>
+  </form>
+</section>
+{% endblock %}

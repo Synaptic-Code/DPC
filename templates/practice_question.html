@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Practice · Daily Python{% endblock %}
+{% block content %}
+<section class="challenge-card">
+  <div class="challenge-topline">
+    <span class="challenge-number">{{ difficulty|upper }} · PRACTICE</span>
+    <span class="topic-pill">{{ challenge.topic }}</span>
+  </div>
+  <h2>{{ challenge.title }}</h2>
+  <p class="question">{{ challenge.prompt }}</p>
+  <pre class="code-block"><code>{{ challenge.code }}</code></pre>
+
+  {% if review %}
+    <div class="review-note">You’ve already solved this one — it’s a review, so it won’t earn new XP.</div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('practice_answer') }}" class="answer-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+    <fieldset>
+      <legend>Choose your answer</legend>
+      <div class="options-grid">
+        {% for option in challenge.options %}
+          <label class="option">
+            <input type="radio" name="answer" value="{{ option.key }}" required>
+            <span class="option-key">{{ option.key }}</span>
+            <span class="option-text">{{ option.text }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <button class="button button-primary submit-button" type="submit">Check my answer <span aria-hidden="true">→</span></button>
+    </fieldset>
+  </form>
+  <p class="back-link"><a href="{{ url_for('practice') }}">← Back to practice</a></p>
+</section>
+{% endblock %}

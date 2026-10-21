@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Request expired · Daily Python{% endblock %}
+{% block content %}
+<section class="error-card">
+  <p class="eyebrow">ONE QUICK RESET</p>
+  <h1>That form is out of date.</h1>
+  <p>{{ message }}</p>
+  <a class="button button-primary" href="{{ url_for('home') }}">Go back and try again</a>
+</section>
+{% endblock %}

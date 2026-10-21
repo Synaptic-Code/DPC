@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="A friendly daily Python coding challenge. Learn a little every day.">
+  <title>Daily Python — a little challenge every day</title>
+  <link rel="stylesheet" href="static/style.css">
+  <style>
+    .static-notice { max-width: 840px; margin: 0 auto 18px; padding: 13px 16px; border: 1px solid #dce4ff; border-radius: 10px; background: #edf1ff; color: #455a9e; font-size: 12px; line-height: 1.65; }
+    .profile-bar { display: flex; max-width: 840px; align-items: center; justify-content: space-between; gap: 14px; margin: 0 auto 16px; padding: 13px 16px; border: 1px solid #e7eaf0; border-radius: 11px; background: #fff; }
+    .profile-name { color: #657186; font-size: 12px; }
+    .profile-name strong { color: #192436; }
+    .profile-form { display: flex; gap: 8px; }
+    .profile-form input { width: min(190px, 43vw); height: 38px; padding: 0 10px; border: 1px solid #dfe3eb; border-radius: 8px; font: 12px 'DM Sans', sans-serif; }
+    .profile-form input:focus { outline: 2px solid #dce4ff; border-color: #8094ee; }
+    .profile-form button { padding: 0 12px; border: 0; border-radius: 8px; background: #edf1ff; color: #3859d6; font: 700 11px 'DM Sans', sans-serif; cursor: pointer; }
+    .profile-select { max-width: 150px; height: 35px; padding: 0 8px; border: 1px solid #dfe3eb; border-radius: 8px; background: #fff; color: #374358; }
+    .result-card { max-width: 840px; margin: 0 auto 18px; padding: 20px 23px; }
+    .result-card[hidden] { display: none; }
+    .result-card h2 { margin: 0 0 7px; font-size: 20px; }
+    .result-card p { margin: 0; color: #4d5a71; font-size: 13px; line-height: 1.7; }
+    .result-card .answer-reveal { margin-top: 10px; color: #192436; font-weight: 600; }
+    .result-correct { border-color: #c5ead7; background: #f3fcf7; }
+    .result-incorrect { border-color: #f3d8cb; background: #fff9f6; }
+    .local-leaderboard { max-width: 840px; margin: 34px auto 0; }
+    .local-leaderboard h2 { margin-bottom: 5px; font-size: 22px; }
+    .local-leaderboard > p { margin-bottom: 13px; color: #7a8596; font-size: 11px; line-height: 1.6; }
+    .local-player-row { display: grid; grid-template-columns: 1fr 100px 110px; align-items: center; gap: 8px; min-height: 54px; padding: 8px 14px; border-top: 1px solid #edf0f4; background: #fff; font-size: 12px; }
+    .local-player-row:first-of-type { border-radius: 10px 10px 0 0; }
+    .local-player-row:last-child { border-radius: 0 0 10px 10px; }
+    .local-player-row strong:not(.local-player-name) { text-align: center; }
+    .local-player-name { display: flex; align-items: center; gap: 9px; }
+    .local-player-avatar { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 9px; background: #edf0ff; color: #596fc9; font-weight: 700; }
+    .leader-labels { display: grid; grid-template-columns: 1fr 100px 110px; gap: 8px; padding: 10px 14px; border-radius: 10px 10px 0 0; background: #f9faff; color: #929cad; font: 9px 'DM Mono', monospace; letter-spacing: .7px; }
+    .leader-labels span:not(:first-child) { text-align: center; }
+    .profile-empty { color: #7a8596; font-size: 12px; }
+    @media (max-width: 600px) {
+      .profile-bar { align-items: flex-start; flex-direction: column; }
+      .profile-form { width: 100%; }
+      .profile-form input { flex: 1; width: auto; }
+      .profile-select { max-width: 100%; }
+      .local-player-row, .leader-labels { grid-template-columns: 1fr 75px 90px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html"><span class="brand-mark">Py</span> Daily Python</a>
+    <nav aria-label="Page navigation">
+      <a href="#challenge">Challenge</a>
+      <a href="#leaderboard">Leaderboard</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow" id="today-label">TODAY · DAILY CHALLENGE</p>
+        <h1>One small challenge.<br><span>One smarter you.</span></h1>
+        <p class="hero-copy">Take a few minutes to sharpen your Python skills, then see how your friends did.</p>
+      </div>
+      <div class="hero-stamp" aria-hidden="true"><span>PY</span><b id="hero-number">—</b></div>
+    </section>
+
+    <aside class="static-notice">
+      <strong>GitHub Pages edition:</strong> This is a static game. Your nickname and progress are saved only in this browser.
+      There are no passwords or shared accounts. Friends can compare scores on this device, or use the Flask + SQLite
+      version on a Python host for shared accounts and a shared leaderboard.
+    </aside>
+
+    <section class="profile-bar" aria-label="Local player profiles">
+      <div class="profile-name">Playing as <strong id="active-player">Guest</strong></div>
+      <select class="profile-select" id="profile-select" aria-label="Choose a local player" hidden></select>
+      <form class="profile-form" id="profile-form">
+        <label class="visually-hidden" for="profile-input">Create or select a nickname</label>
+        <input id="profile-input" name="nickname" type="text" maxlength="20" minlength="3" pattern="[A-Za-z0-9_]{3,20}" placeholder="Add a nickname" autocomplete="nickname" required>
+        <button type="submit">Add player</button>
+      </form>
+    </section>
+
+    <section class="result-card" id="result" aria-live="polite" hidden></section>
+
+    <section class="challenge-card" id="challenge">
+      <div class="challenge-topline">
+        <span class="challenge-number">TODAY’S PUZZLE</span>
+        <span class="topic-pill" id="challenge-topic"></span>
+      </div>
+      <h2 id="challenge-title"></h2>
+      <p class="question" id="challenge-prompt"></p>
+      <pre class="code-block"><code id="challenge-code"></code></pre>
+      <form class="answer-form" id="answer-form">
+        <fieldset id="answer-fieldset">
+          <legend>Choose your answer</legend>
+          <div class="options-grid" id="options"></div>
+          <button class="button button-primary submit-button" id="submit-button" type="submit">Check my answer <span aria-hidden="true">→</span></button>
+        </fieldset>
+      </form>
+    </section>
+    <p class="safe-note"><span aria-hidden="true">✦</span> No code runs in your browser. Just think, choose, and learn.</p>
+
+    <section class="local-leaderboard" id="leaderboard">
+      <h2>Friends on this device<span style="color:#3859d6">.</span></h2>
+      <p>Local scores are private to this browser. Add a nickname for each player who shares this device.</p>
+      <div class="leader-labels"><span>PLAYER</span><span>SOLVED DAYS</span><span>STREAK</span></div>
+      <div id="leaderboard-rows"></div>
+    </section>
+  </main>
+  <footer class="site-footer">A little Python practice, every day. Built for learning together.</footer>
+
+  <script>
+    "use strict";
+
+    const challenges = [
+      {
+        id: "sum-list", title: "The list total", topic: "Python basics",
+        prompt: "What does this code print?",
+        code: "numbers = [2, 4, 6]\nprint(sum(numbers))",
+        options: [["A", "12"], ["B", "246"], ["C", "3"], ["D", "It raises an error"]],
+        answer: "A", answerText: "12",
+        explanation: "`sum()` adds all the numbers in the list: 2 + 4 + 6 = 12."
+      },
+      {
+        id: "range-stop", title: "Where range stops", topic: "Loops",
+        prompt: "How many times does this loop print `Hello`?",
+        code: "for _ in range(3):\n    print('Hello')",
+        options: [["A", "2"], ["B", "3"], ["C", "4"], ["D", "It never stops"]],
+        answer: "B", answerText: "3",
+        explanation: "`range(3)` produces 0, 1, and 2: three values. The stop number (3) is not included."
+      },
+      {
+        id: "string-index", title: "First character", topic: "Strings",
+        prompt: "What does `word[0]` give you?",
+        code: "word = 'python'\nprint(word[0])",
+        options: [["A", "p"], ["B", "y"], ["C", "n"], ["D", "The whole word"]],
+        answer: "A", answerText: "p",
+        explanation: "Python strings are zero-indexed, so index 0 refers to the first character."
+      },
+      {
+        id: "mutable-list", title: "Changing a list", topic: "Lists",
+        prompt: "What does the final line print?",
+        code: "colors = ['red', 'blue']\ncolors.append('green')\nprint(len(colors))",
+        options: [["A", "2"], ["B", "3"], ["C", "green"], ["D", "It raises an error"]],
+        answer: "B", answerText: "3",
+        explanation: "`append()` adds one item to the end of the list, so it contains three colors."
+      },
+      {
+        id: "boolean-and", title: "Both conditions", topic: "Logic",
+        prompt: "What does this expression evaluate to?",
+        code: "age = 20\nprint(age >= 18 and age < 30)",
+        options: [["A", "True"], ["B", "False"], ["C", "20"], ["D", "It raises an error"]],
+        answer: "A", answerText: "True",
+        explanation: "Both comparisons are true, and `and` is true only when both sides are true."
+      },
+      {
+        id: "dictionary-get", title: "A safe lookup", topic: "Dictionaries",
+        prompt: "What value does `get()` return here?",
+        code: "scores = {'Mia': 8}\nprint(scores.get('Leo', 0))",
+        options: [["A", "8"], ["B", "None"], ["C", "0"], ["D", "It raises a KeyError"]],
+        answer: "C", answerText: "0",
+        explanation: "`get(key, default)` returns the default value, 0, when the key is not in the dictionary."
+      },
+      {
+        id: "integer-division", title: "Division with a twist", topic: "Operators",
+        prompt: "What does the `//` operator print?",
+        code: "print(17 // 5)",
+        options: [["A", "3"], ["B", "3.4"], ["C", "2"], ["D", "4"]],
+        answer: "A", answerText: "3",
+        explanation: "`//` is floor division. It gives the whole-number quotient, so 17 // 5 is 3."
+      }
+    ];
+    const storageKey = "daily-python-pages-v1";
+    const today = new Date();
+    const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    let store = loadStore();
+    let activeName = store.active;
+    let todaysChallenge;
+
+    function loadStore() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+        if (saved && saved.players && typeof saved.players === "object") {
+          return { active: saved.active || "", players: saved.players };
+        }
+      } catch (error) {
+        console.warn("Could not read saved Daily Python progress.", error);
+      }
+      return { active: "", players: {} };
+    }
+
+    function saveStore() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(store));
+      } catch (error) {
+        showResult("Progress could not be saved", "Your browser may be blocking local storage. You can still play this challenge.", false);
+        console.error("Could not save Daily Python progress.", error);
+      }
+    }
+
+    async function pickTodaysChallenge() {
+      const bytes = new TextEncoder().encode(dateKey);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      const view = new DataView(digest);
+      const index = Number(view.getBigUint64(0, false) % BigInt(challenges.length));
+      return challenges[index];
+    }
+
+    function getCurrentPlayer() {
+      return activeName ? store.players[activeName] : null;
+    }
+
+    function completedForToday(player) {
+      const attempt = player && player.days ? player.days[dateKey] : null;
+      return Boolean(attempt && todaysChallenge && attempt.answer === todaysChallenge.answer);
+    }
+
+    function currentStreak(player) {
+      const solved = player && player.solved ? new Set(player.solved) : new Set();
+      let day = new Date(`${dateKey}T12:00:00`);
+      const isoToday = dateKey;
+      const hasToday = solved.has(isoToday);
+      if (!hasToday) day.setDate(day.getDate() - 1);
+      let count = 0;
+      while (true) {
+        const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+        if (!solved.has(key)) break;
+        count++;
+        day.setDate(day.getDate() - 1);
+      }
+      return count;
+    }
+
+    function showResult(title, message, correct, reveal = "") {
+      const panel = document.getElementById("result");
+      panel.className = `result-card ${correct ? "result-correct" : "result-incorrect"}`;
+      panel.replaceChildren();
+      const heading = document.createElement("h2");
+      heading.textContent = title;
+      const body = document.createElement("p");
+      body.textContent = message;
+      panel.append(heading, body);
+      if (reveal) {
+        const explanation = document.createElement("p");
+        explanation.className = "answer-reveal";
+        explanation.textContent = reveal;
+        panel.append(explanation);
+      }
+      panel.hidden = false;
+    }
+
+    function renderChallenge() {
+      const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000);
+      document.getElementById("hero-number").textContent = String(dayOfYear).padStart(3, "0");
+      document.getElementById("today-label").textContent =
+        `${today.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })} · DAILY CHALLENGE`;
+      document.getElementById("challenge-topic").textContent = todaysChallenge.topic;
+      document.getElementById("challenge-title").textContent = todaysChallenge.title;
+      document.getElementById("challenge-prompt").textContent = todaysChallenge.prompt;
+      document.getElementById("challenge-code").textContent = todaysChallenge.code;
+      const options = document.getElementById("options");
+      options.replaceChildren();
+      for (const [key, text] of todaysChallenge.options) {
+        const label = document.createElement("label");
+        label.className = "option";
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = "answer";
+        input.value = key;
+        input.required = true;
+        const badge = document.createElement("span");
+        badge.className = "option-key";
+        badge.textContent = key;
+        const description = document.createElement("span");
+        description.className = "option-text";
+        description.textContent = text;
+        label.append(input, badge, description);
+        options.append(label);
+      }
+      updatePlayerUI();
+    }
+
+    function updatePlayerUI() {
+      const player = getCurrentPlayer();
+      document.getElementById("active-player").textContent = activeName || "Guest";
+      const selector = document.getElementById("profile-select");
+      const names = Object.keys(store.players).sort((a, b) => a.localeCompare(b));
+      selector.hidden = names.length < 2;
+      selector.replaceChildren();
+      for (const name of names) {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        option.selected = name === activeName;
+        selector.append(option);
+      }
+      const done = completedForToday(player);
+      document.getElementById("answer-fieldset").disabled = done;
+      document.getElementById("submit-button").textContent = done ? "Already played today" : "Check my answer →";
+      document.getElementById("result").hidden = true;
+      if (done) {
+        const attempt = player.days[dateKey];
+        const correct = attempt.answer === todaysChallenge.answer;
+        showResult(
+          correct ? "You got it!" : "Not quite—and that’s okay.",
+          correct ? `Nice work, ${activeName}! Your progress is saved in this browser.` : `You chose ${attempt.answer}. The correct answer is ${todaysChallenge.answerText}.`,
+          correct,
+          `Why? ${todaysChallenge.explanation}`
+        );
+      }
+      renderLeaderboard();
+    }
+
+    function renderLeaderboard() {
+      const container = document.getElementById("leaderboard-rows");
+      container.replaceChildren();
+      const players = Object.entries(store.players).map(([name, player]) => ({
+        name,
+        days: Array.isArray(player.solved) ? player.solved.length : 0,
+        streak: currentStreak(player)
+      })).sort((a, b) => b.days - a.days || b.streak - a.streak || a.name.localeCompare(b.name));
+      if (players.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "profile-empty";
+        empty.textContent = "Add your nickname above to start a friendly leaderboard.";
+        container.append(empty);
+        return;
+      }
+      for (const player of players) {
+        const row = document.createElement("div");
+        row.className = "local-player-row";
+        const name = document.createElement("span");
+        name.className = "local-player-name";
+        const avatar = document.createElement("span");
+        avatar.className = "local-player-avatar";
+        avatar.textContent = player.name.charAt(0).toUpperCase();
+        const label = document.createElement("strong");
+        label.textContent = player.name;
+        name.append(avatar, label);
+        const days = document.createElement("strong");
+        days.textContent = String(player.days);
+        const streak = document.createElement("strong");
+        streak.textContent = `${player.streak} 🔥`;
+        row.append(name, days, streak);
+        container.append(row);
+      }
+    }
+
+    document.getElementById("profile-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = document.getElementById("profile-input");
+      const name = input.value.trim();
+      if (!/^[A-Za-z0-9_]{3,20}$/.test(name)) {
+        input.setCustomValidity("Use 3–20 letters, numbers, or underscores.");
+        input.reportValidity();
+        input.setCustomValidity("");
+        return;
+      }
+      if (!store.players[name]) store.players[name] = { solved: [], days: {} };
+      activeName = name;
+      store.active = name;
+      saveStore();
+      input.value = "";
+      updatePlayerUI();
+    });
+
+    document.getElementById("profile-select").addEventListener("change", (event) => {
+      activeName = event.target.value;
+      store.active = activeName;
+      saveStore();
+      updatePlayerUI();
+    });
+
+    document.getElementById("answer-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const player = getCurrentPlayer();
+      if (!player) {
+        showResult("Add your nickname first", "Choose a local player name above to save your answer and appear on this device’s leaderboard.", false);
+        document.getElementById("profile-input").focus();
+        return;
+      }
+      if (completedForToday(player)) return;
+      const choice = new FormData(event.currentTarget).get("answer");
+      if (!choice) {
+        showResult("Choose an answer", "Select one of the choices before checking your answer.", false);
+        return;
+      }
+      const correct = choice === todaysChallenge.answer;
+      player.days[dateKey] = { answer: choice, challenge: todaysChallenge.id };
+      if (correct && !player.solved.includes(dateKey)) player.solved.push(dateKey);
+      store.players[activeName] = player;
+      saveStore();
+      if (correct) {
+        document.getElementById("answer-fieldset").disabled = true;
+        document.getElementById("submit-button").textContent = "Already played today";
+      }
+      showResult(
+        correct ? "You got it!" : "Not quite—and that’s okay.",
+        correct ? `Nice work, ${activeName}! Your progress is saved in this browser.` : `You chose ${choice}. The correct answer is ${todaysChallenge.answerText}.`,
+        correct,
+        `Why? ${todaysChallenge.explanation}`
+      );
+      renderLeaderboard();
+      document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    pickTodaysChallenge().then((challenge) => {
+      todaysChallenge = challenge;
+      renderChallenge();
+    }).catch((error) => {
+      console.error("Unable to choose today's challenge.", error);
+      showResult("Challenge unavailable", "This browser could not prepare today's puzzle. Please try a modern browser over HTTPS.", false);
+    });
+  </script>
+</body>
+</html>

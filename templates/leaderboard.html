@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard · Daily Python{% endblock %}
+{% block content %}
+<section class="leaderboard-heading">
+  <p class="eyebrow">A LITTLE FRIENDLY COMPETITION</p>
+  <h1>The leaderboard<span>.</span></h1>
+  <p>Show up, solve challenges, and keep your streak alive.</p>
+</section>
+<section class="leaderboard-card">
+  <div class="leaderboard-caption"><span>PLAYERS</span><span>XP</span><span>SOLVED DAYS</span><span>CURRENT STREAK</span></div>
+  {% if rows %}
+    {% for row in rows %}
+      <div class="leaderboard-row">
+        <div class="player-name"><span class="player-avatar">{{ row.username[0]|upper }}</span><strong>{{ row.username }}</strong>{% if loop.index == 1 and row.points > 0 %}<span class="top-player">TOP</span>{% endif %}</div>
+        <div class="stat xp-stat"><strong>{{ row.points }}</strong><span>XP</span></div>
+        <div class="stat"><strong>{{ row.solved_days }}</strong><span>days</span></div>
+        <div class="stat streak-stat"><strong>{{ row.streak }}</strong><span>🔥 {% if row.streak == 1 %}day{% else %}days{% endif %}</span></div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state"><span>☀</span><h2>It’s quiet in here.</h2><p>Be the first to sign up and solve a challenge. Then invite a friend to join you.</p><a class="button button-primary" href="{{ url_for('signup') }}">Join the challenge</a></div>
+  {% endif %}
+  <p class="leaderboard-footnote">Ranked by XP, then solved days, then current streak. Earn XP by solving the daily challenge or any practice problem.</p>
+</section>
+{% endblock %}

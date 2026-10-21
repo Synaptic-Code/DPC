@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Today’s challenge · Daily Python{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">{{ today.strftime("%A, %B %d, %Y").replace(" 0", " ") }} <span class="dot">·</span> Daily challenge</p>
+    <h1>One small challenge.<br><span>One smarter you.</span></h1>
+    <p class="hero-copy">Take a few minutes to sharpen your Python skills, then see how your friends did.</p>
+  </div>
+  <div class="hero-stamp" aria-hidden="true"><span>PY</span><b>{{ today.strftime('%j') }}</b></div>
+</section>
+
+{% if solved %}
+  <div class="solved-banner"><span>✓</span><div><strong>You’ve solved today’s challenge!</strong><br>Come back tomorrow, or <a class="text-link" href="{{ url_for('practice') }}">practice more</a> to keep earning XP.</div></div>
+{% endif %}
+
+<section class="challenge-card">
+  <div class="challenge-topline">
+    <span class="challenge-number">TODAY’S PUZZLE</span>
+    <span class="topic-pill">{{ challenge.topic }}</span>
+  </div>
+  <h2>{{ challenge.title }}</h2>
+  <p class="question">{{ challenge.prompt }}</p>
+  <pre class="code-block"><code>{{ challenge.code }}</code></pre>
+
+  {% if g.user %}
+    <form method="post" action="{{ url_for('submit_answer') }}" class="answer-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <fieldset {% if solved %}disabled{% endif %}>
+        <legend>Choose your answer</legend>
+        <div class="options-grid">
+          {% for option in challenge.options %}
+            <label class="option">
+              <input type="radio" name="answer" value="{{ option.key }}" required>
+              <span class="option-key">{{ option.key }}</span>
+              <span class="option-text">{{ option.text }}</span>
+            </label>
+          {% endfor %}
+        </div>
+        <button class="button button-primary submit-button" type="submit">{% if solved %}Already solved{% else %}Check my answer <span aria-hidden="true">→</span>{% endif %}</button>
+      </fieldset>
+    </form>
+  {% else %}
+    <div class="login-nudge">
+      <p>Ready to play? Sign in to save your progress and compete with friends.</p>
+      <a class="button button-primary" href="{{ url_for('login') }}">Log in to answer <span aria-hidden="true">→</span></a>
+    </div>
+  {% endif %}
+</section>
+<p class="safe-note"><span aria-hidden="true">✦</span> No code runs on the server. Just think, choose, and learn.</p>
+{% endblock %}

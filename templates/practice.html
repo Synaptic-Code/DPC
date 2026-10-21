@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Practice · Daily Python{% endblock %}
+{% block content %}
+<section class="practice-heading">
+  <p class="eyebrow">EXTRA CREDIT</p>
+  <h1>Practice<span>.</span></h1>
+  <p>Done with today’s puzzle? Keep going, climb the difficulty ladder, and stack up points.</p>
+</section>
+<div class="xp-total">You have <strong>{{ points }}</strong> XP</div>
+<section class="practice-tiers">
+  {% for tier in tiers %}
+    <div class="tier-card">
+      <div class="tier-top">
+        <span class="tier-label">{{ tier.label }}</span>
+        <span class="tier-xp">+{{ tier.xp }} XP each</span>
+      </div>
+      <div class="tier-progress"><div class="tier-progress-fill" style="width: {{ tier.percent }}%"></div></div>
+      <p class="tier-count">{{ tier.solved }} / {{ tier.total }} solved</p>
+      <a class="button button-primary" href="{{ url_for('practice_question', difficulty=tier.difficulty) }}">Practice {{ tier.label }} <span aria-hidden="true">→</span></a>
+    </div>
+  {% endfor %}
+</section>
+<p class="safe-note"><span aria-hidden="true">✦</span> Every challenge is worth XP the first time you solve it. Harder problems pay more.</p>
+{% endblock %}
